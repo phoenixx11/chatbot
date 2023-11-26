@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200&family=PT+Serif:ital@1&family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="history-column">
+            <h2>Chat History</h2>
+            <ul id="chatHistory"></ul>
+        </div>
+
+        <div class="chat-column">
+            <h1>History Chatbot</h1>
+            <div id="chatResponse"></div>
+
+            <form id="chatForm">
+                <input type="text" id="msg" name="msg" placeholder="Type a message..." required>
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("chatForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            var msg = document.getElementById("msg").value;
+            var chatHistoryList = document.getElementById("chatHistory");
+            var userQuestion = document.createElement("li");
+            userQuestion.className = "user-question";
+            userQuestion.textContent = `You: ${msg}`;
+            chatHistoryList.appendChild(userQuestion);
+
+            fetch("/get", {
+                method: "POST",
+                body: new URLSearchParams({ msg: msg }),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("chatResponse").innerHTML = `<p>Bot: ${data.response}</p>`;
+                var botResponse = document.createElement("li");
+                botResponse.className = "bot-response";
+                botResponse.textContent = `Bot: ${data.response}`;
+                chatHistoryList.appendChild(botResponse);
+            });
+        });
+    </script>
+</body>
+</html>
+  
